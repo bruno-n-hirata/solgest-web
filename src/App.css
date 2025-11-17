@@ -540,6 +540,32 @@
     box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
 }
 
+.form-field input:disabled,
+.form-field select:disabled {
+    background-color: #f9fafb; /* mesma cor dos outros campos “apagados”, se quiser */
+    color: #9ca3af;           /* texto mais clarinho */
+    border-color: #e5e7eb;
+    cursor: not-allowed;
+}
+
+/* mesma cor de placeholder dos inputs */
+.form-field input::placeholder {
+    color: #9ca3af;
+}
+
+/* força a aparência dos selects desabilitados */
+.form-field select:disabled {
+    background-color: #f9fafb; /* igual aos outros desabilitados, se quiser */
+    color: #9ca3af;            /* mesma cor do placeholder dos inputs */
+    border-color: #e5e7eb;
+    opacity: 1;                /* tira a opacidade extra que o browser põe */
+}
+
+/* garante que as opções usem essa cor herdada */
+.form-field select:disabled option {
+    color: inherit;
+}
+
 .client-form-footer {
     margin-top: 12px;
     display: flex;

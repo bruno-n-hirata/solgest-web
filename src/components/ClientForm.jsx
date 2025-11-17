@@ -1,4 +1,3 @@
-// src/components/ClientForm.jsx
 import React, { useState, useEffect } from "react";
 
 const EMPTY_CLIENT = {
@@ -18,6 +17,7 @@ const EMPTY_CLIENT = {
 
 export default function ClientForm({ mode = "create", initialData, onCancel, onSave }) {
     const [client, setClient] = useState(EMPTY_CLIENT);
+    const [addressEnabled, setAddressEnabled] = useState(false);
 
     useEffect(() => {
         if (initialData) {
@@ -31,6 +31,78 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
         setClient((prev) => ({
             ...prev,
             [field]: event.target.value,
+        }));
+    };
+
+    const handleCepChange = (event) => {
+        let value = event.target.value.replace(/\D/g, "");
+
+        if (value.length > 8) {
+            value = value.slice(0, 8);
+        }
+
+        if (value.length > 5) {
+            value = value.replace(/^(\d{5})(\d{0,3})$/, "$1-$2");
+        }
+
+        setClient((prev) => ({ ...prev, cep: value }));
+
+        const digitsCount = value.replace(/\D/g, "").length;
+        if (digitsCount < 8) {
+            setAddressEnabled(false);
+        }
+    };
+
+    const handleCepBlur = async () => {
+        const cepLimpo = client.cep.replace(/\D/g, "");
+
+        if (cepLimpo.length !== 8) {
+            clearAddressFields();
+            setAddressEnabled(false);
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/cep?cep=${cepLimpo}`);
+
+            if (!res.ok) {
+                clearAddressFields();
+                setAddressEnabled(true);
+                return;
+            }
+
+            const data = await res.json();
+
+            if (data.error) {
+                clearAddressFields();
+                setAddressEnabled(true);
+                return;
+            }
+
+            setClient((prev) => ({
+                ...prev,
+                street: data.logradouro || "",
+                district: data.bairro || "",
+                city: data.localidade || "",
+                state: data.uf || "",
+            }));
+
+            setAddressEnabled(false);
+        } catch (e) {
+            clearAddressFields();
+            setAddressEnabled(true);
+        }
+    };
+
+    const clearAddressFields = () => {
+        setClient((prev) => ({
+            ...prev,
+            street: "",
+            number: "",
+            complement: "",
+            district: "",
+            city: "",
+            state: "",
         }));
     };
 
@@ -107,7 +179,11 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             type="text"
                             placeholder="00000-000"
                             value={client.cep}
-                            onChange={handleChange("cep")}
+                            onChange={handleCepChange}
+                            onBlur={handleCepBlur}
+                            inputMode="numeric"
+                            pattern="\d*"
+                            maxLength={9}
                         />
                     </div>
 
@@ -118,6 +194,7 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             placeholder="Nome da Rua"
                             value={client.street}
                             onChange={handleChange("street")}
+                            disabled={!addressEnabled}
                         />
                     </div>
 
@@ -148,6 +225,7 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             placeholder="Nome do Bairro"
                             value={client.district}
                             onChange={handleChange("district")}
+                            disabled={!addressEnabled}
                         />
                     </div>
 
@@ -158,6 +236,7 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             placeholder="Nome da Cidade"
                             value={client.city}
                             onChange={handleChange("city")}
+                            disabled={!addressEnabled}
                         />
                     </div>
 
@@ -166,6 +245,7 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                         <select
                             value={client.state}
                             onChange={handleChange("state")}
+                            disabled={!addressEnabled}
                         >
                             <option value="">Selecione um Estado</option>
                             <option value="AC">AC</option>
