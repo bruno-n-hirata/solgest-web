@@ -1551,3 +1551,57 @@
     background-color: #dc2626;
 }
 
+/* borda vermelha em inputs com erro */
+.form-field input.input-error,
+.form-field select.input-error,
+.form-group input.input-error {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.25);
+}
+
+/* manter vermelho mesmo em foco */
+.form-field input.input-error:focus,
+.form-field select.input-error:focus,
+.form-group input.input-error:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.35);
+}
+
+.error-text {
+    color: #dc2626;
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: block;
+}
+
+
+
+.input-with-loader {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Dá espaço pro ícone de loading à direita */
+.input-with-loader input {
+    padding-right: 32px;
+}
+
+/* Bolinha girando */
+.input-loader {
+    position: absolute;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #fbbf24; /* amarelo do tema */
+    animation: spin 0.7s linear infinite;
+}
+
+/* animação */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

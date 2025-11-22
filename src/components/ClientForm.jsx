@@ -18,6 +18,8 @@ const EMPTY_CLIENT = {
 export default function ClientForm({ mode = "create", initialData, onCancel, onSave }) {
     const [client, setClient] = useState(EMPTY_CLIENT);
     const [addressEnabled, setAddressEnabled] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [isCepLoading, setIsCepLoading] = useState(false);
 
     useEffect(() => {
         if (initialData) {
@@ -28,10 +30,19 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
     }, [initialData]);
 
     const handleChange = (field) => (event) => {
+        const value = event.target.value;
+
         setClient((prev) => ({
             ...prev,
-            [field]: event.target.value,
+            [field]: value,
         }));
+
+        setErrors((prev) => {
+            if (!prev[field]) return prev;
+            const newErrors = { ...prev };
+            delete newErrors[field];
+            return newErrors;
+        });
     };
 
     const handleCepChange = (event) => {
@@ -45,6 +56,19 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
             value = value.replace(/^(\d{5})(\d{0,3})$/, "$1-$2");
         }
 
+        clearAddressFields();
+
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.street;
+            delete newErrors.district;
+            delete newErrors.city;
+            delete newErrors.state;
+            delete newErrors.number;
+            delete newErrors.cep;
+            return newErrors;
+        });
+
         setClient((prev) => ({ ...prev, cep: value }));
 
         const digitsCount = value.replace(/\D/g, "").length;
@@ -53,14 +77,104 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
         }
     };
 
+    const handlePhoneChange = (event) => {
+        let value = event.target.value.replace(/\D/g, "");
+
+        if (value.length > 11) {
+            value = value.slice(0, 11);
+        }
+
+        let formatted = value;
+
+        if (value.length > 0 && value.length <= 2) {
+            formatted = `(${value}`;
+        }
+
+        if (value.length > 2 && value.length <= 6) {
+            formatted = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+        }
+
+        if (value.length > 6 && value.length <= 10) {
+            formatted = `(${value.slice(0, 2)}) ${value.slice(2, 6)}-${value.slice(6)}`;
+        }
+
+        if (value.length === 11) {
+            formatted = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+        }
+
+        setClient((prev) => ({
+            ...prev,
+            phone: formatted,
+        }));
+
+        setErrors((prev) => {
+            if (!prev.phone) return prev;
+            const newErrors = { ...prev };
+            delete newErrors.phone;
+            return newErrors;
+        });
+    };
+
+    const handleDocumentChange = (event) => {
+        let value = event.target.value.replace(/\D/g, "");
+
+        if (value.length > 14) {
+            value = value.slice(0, 14);
+        }
+
+        let formatted = value;
+
+        if (value.length <= 11) {
+            if (value.length > 3 && value.length <= 6) {
+                formatted = `${value.slice(0, 3)}.${value.slice(3)}`;
+            }
+            if (value.length > 6 && value.length <= 9) {
+                formatted = `${value.slice(0, 3)}.${value.slice(3, 6)}.${value.slice(6)}`;
+            }
+            if (value.length > 9) {
+                formatted = `${value.slice(0, 3)}.${value.slice(3, 6)}.${value.slice(6, 9)}-${value.slice(9)}`;
+            }
+        } else {
+            if (value.length <= 12) {
+                formatted =
+                    `${value.slice(0, 2)}.` +
+                    `${value.slice(2, 5)}.` +
+                    `${value.slice(5, 8)}/` +
+                    `${value.slice(8)}`;
+            } else {
+                formatted =
+                    `${value.slice(0, 2)}.` +
+                    `${value.slice(2, 5)}.` +
+                    `${value.slice(5, 8)}/` +
+                    `${value.slice(8, 12)}-` +
+                    `${value.slice(12)}`;
+            }
+        }
+
+        setClient((prev) => ({
+            ...prev,
+            document: formatted,
+        }));
+
+        setErrors((prev) => {
+            if (!prev.document) return prev;
+            const newErrors = { ...prev };
+            delete newErrors.document;
+            return newErrors;
+        });
+    };
+
     const handleCepBlur = async () => {
         const cepLimpo = client.cep.replace(/\D/g, "");
 
         if (cepLimpo.length !== 8) {
             clearAddressFields();
             setAddressEnabled(false);
+            setIsCepLoading(false);
             return;
         }
+
+        setIsCepLoading(true);
 
         try {
             const res = await fetch(`/api/cep?cep=${cepLimpo}`);
@@ -91,6 +205,8 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
         } catch (e) {
             clearAddressFields();
             setAddressEnabled(true);
+        } finally {
+            setIsCepLoading(false);
         }
     };
 
@@ -106,11 +222,87 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
         }));
     };
 
+    const validate = () => {
+        const newErrors = {};
+        const digitsDoc = client.document.replace(/\D/g, "");
+        const digitsPhone = client.phone.replace(/\D/g, "");
+        const digitsCep = client.cep.replace(/\D/g, "");
+        const consumo = client.averageConsumption;
+
+        if (!client.fullName.trim()) {
+            newErrors.fullName = "Informe o nome completo.";
+        }
+
+        if (!client.document.trim()) {
+            newErrors.document = "Informe o CPF ou CNPJ.";
+        } else if (digitsDoc.length !== 11 && digitsDoc.length !== 14) {
+            newErrors.document = "CPF deve ter 11 dígitos ou CNPJ 14 dígitos.";
+        }
+
+        if (!client.phone.trim()) {
+            newErrors.phone = "Informe o telefone.";
+        } else if (digitsPhone.length < 10 || digitsPhone.length > 11) {
+            newErrors.phone = "Telefone deve ter 10 ou 11 dígitos.";
+        }
+
+        if (!client.email.trim()) {
+            newErrors.email = "Informe o e-mail.";
+        } else {
+            const emailRegex = /\S+@\S+\.\S+/;
+            if (!emailRegex.test(client.email)) {
+                newErrors.email = "Informe um e-mail válido.";
+            }
+        }
+
+        if (consumo === "" || consumo === null) {
+            newErrors.averageConsumption = "Informe o consumo médio mensal.";
+        } else if (Number(consumo) < 0) {
+            newErrors.averageConsumption = "O consumo não pode ser negativo.";
+        }
+
+        if (!client.cep.trim()) {
+            newErrors.cep = "Informe o CEP.";
+        } else if (digitsCep.length !== 8) {
+            newErrors.cep = "CEP deve ter 8 dígitos.";
+        }
+
+        if (!client.street.trim()) {
+            newErrors.street = "Informe a rua.";
+        }
+
+        if (!client.number.trim()) {
+            newErrors.number = "Informe o número.";
+        }
+
+        if (!client.district.trim()) {
+            newErrors.district = "Informe o bairro.";
+        }
+
+        if (!client.city.trim()) {
+            newErrors.city = "Informe a cidade.";
+        }
+
+        if (!client.state.trim()) {
+            newErrors.state = "Selecione o estado.";
+        }
+
+        return newErrors;
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
-        // aqui você depois pode validar e chamar API
+
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
         onSave?.(client);
     };
+
+    const getInputClass = (field) =>
+        errors[field] ? "input-error" : "";
 
     return (
         <section className="card client-form-card">
@@ -118,7 +310,7 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                 <h2>{mode === "edit" ? "Editar Cliente" : "Cadastrar Cliente"}</h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="client-form">
+            <form onSubmit={handleSubmit} className="client-form" noValidate>
                 <div className="form-grid">
                     <div className="form-field">
                         <label>Nome Completo</label>
@@ -127,7 +319,11 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             placeholder="Nome Completo do Cliente"
                             value={client.fullName}
                             onChange={handleChange("fullName")}
+                            className={getInputClass("fullName")}
                         />
+                        {errors.fullName && (
+                            <span className="error-text">{errors.fullName}</span>
+                        )}
                     </div>
 
                     <div className="form-field">
@@ -136,8 +332,14 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             type="text"
                             placeholder="000.000.000-00 ou 00.000.000/0000-00"
                             value={client.document}
-                            onChange={handleChange("document")}
+                            onChange={handleDocumentChange}
+                            inputMode="numeric"
+                            maxLength={18}
+                            className={getInputClass("document")}
                         />
+                        {errors.document && (
+                            <span className="error-text">{errors.document}</span>
+                        )}
                     </div>
 
                     <div className="form-field">
@@ -146,18 +348,28 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             type="text"
                             placeholder="(00) 00000-0000"
                             value={client.phone}
-                            onChange={handleChange("phone")}
+                            onChange={handlePhoneChange}
+                            inputMode="numeric"
+                            maxLength={15}
+                            className={getInputClass("phone")}
                         />
+                        {errors.phone && (
+                            <span className="error-text">{errors.phone}</span>
+                        )}
                     </div>
 
                     <div className="form-field">
-                        <label>Email</label>
+                        <label>E-mail</label>
                         <input
                             type="email"
                             placeholder="email@example.com"
                             value={client.email}
                             onChange={handleChange("email")}
+                            className={getInputClass("email")}
                         />
+                        {errors.email && (
+                            <span className="error-text">{errors.email}</span>
+                        )}
                     </div>
 
                     <div className="form-field">
@@ -168,23 +380,39 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             placeholder="0"
                             value={client.averageConsumption}
                             onChange={handleChange("averageConsumption")}
+                            className={getInputClass("averageConsumption")}
                         />
+                        {errors.averageConsumption && (
+                            <span className="error-text">{errors.averageConsumption}</span>
+                        )}
                     </div>
                 </div>
 
                 <div className="form-grid">
                     <div className="form-field">
                         <label>CEP</label>
-                        <input
-                            type="text"
-                            placeholder="00000-000"
-                            value={client.cep}
-                            onChange={handleCepChange}
-                            onBlur={handleCepBlur}
-                            inputMode="numeric"
-                            pattern="\d*"
-                            maxLength={9}
-                        />
+                        <div className="input-with-loader">
+                            <input
+                                type="text"
+                                placeholder="00000-000"
+                                value={client.cep}
+                                onChange={handleCepChange}
+                                onBlur={handleCepBlur}
+                                inputMode="numeric"
+                                pattern="\d*"
+                                maxLength={9}
+                                className={getInputClass("cep")}
+                            />
+                            {isCepLoading && (
+                                <span
+                                    className="input-loader"
+                                    aria-label="Buscando CEP..."
+                                />
+                            )}
+                        </div>
+                        {errors.cep && (
+                            <span className="error-text">{errors.cep}</span>
+                        )}
                     </div>
 
                     <div className="form-field">
@@ -195,7 +423,11 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             value={client.street}
                             onChange={handleChange("street")}
                             disabled={!addressEnabled}
+                            className={getInputClass("street")}
                         />
+                        {errors.street && (
+                            <span className="error-text">{errors.street}</span>
+                        )}
                     </div>
 
                     <div className="form-field">
@@ -205,7 +437,11 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             placeholder="Ex: 123"
                             value={client.number}
                             onChange={handleChange("number")}
+                            className={getInputClass("number")}
                         />
+                        {errors.number && (
+                            <span className="error-text">{errors.number}</span>
+                        )}
                     </div>
 
                     <div className="form-field">
@@ -226,7 +462,11 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             value={client.district}
                             onChange={handleChange("district")}
                             disabled={!addressEnabled}
+                            className={getInputClass("district")}
                         />
+                        {errors.district && (
+                            <span className="error-text">{errors.district}</span>
+                        )}
                     </div>
 
                     <div className="form-field">
@@ -237,7 +477,11 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             value={client.city}
                             onChange={handleChange("city")}
                             disabled={!addressEnabled}
+                            className={getInputClass("city")}
                         />
+                        {errors.city && (
+                            <span className="error-text">{errors.city}</span>
+                        )}
                     </div>
 
                     <div className="form-field">
@@ -246,6 +490,7 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             value={client.state}
                             onChange={handleChange("state")}
                             disabled={!addressEnabled}
+                            className={getInputClass("state")}
                         >
                             <option value="">Selecione um Estado</option>
                             <option value="AC">AC</option>
@@ -276,6 +521,9 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             <option value="SE">SE</option>
                             <option value="TO">TO</option>
                         </select>
+                        {errors.state && (
+                            <span className="error-text">{errors.state}</span>
+                        )}
                     </div>
                 </div>
 
