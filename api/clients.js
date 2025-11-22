@@ -35,18 +35,18 @@ export default async function handler(req, res) {
 
         if (method === 'POST') {
             const body = await getJsonBody(req);
-            const { name, email } = body;
+            const { nome, cpf_cnpj, email, telefone, logradouro, numero, complemento, bairro, cidade, uf, cep, consumo_medio } = body;
 
-            if (!name || !email) {
+            if (!nome || !email) {
                 res.statusCode = 400;
-                res.end(JSON.stringify({ error: 'name e email são obrigatórios' }));
+                res.end(JSON.stringify({ error: 'Nome e email são obrigatórios' }));
                 return;
             }
 
             const result = await sql`
-                INSERT INTO cliente (name, email)
-                VALUES (${name}, ${email})
-                RETURNING id, name, email, created_at
+                INSERT INTO cliente (nome, cpf_cnpj, email, telefone, logradouro, numero, complemento, bairro, cidade, uf, cep, consumo_medio)
+                VALUES (${nome}, ${cpf_cnpj}, ${email}, ${telefone}, ${logradouro}, ${numero}, ${complemento}, ${bairro}, ${cidade}, ${uf}, ${cep}, ${consumo_medio})
+                RETURNING cliente_id
             `;
 
             res.statusCode = 201;
@@ -57,21 +57,31 @@ export default async function handler(req, res) {
 
         if (method === 'PUT') {
             const body = await getJsonBody(req);
-            const { id, name, email } = body;
+            const { cliente_id, nome, cpf_cnpj, email, telefone, logradouro, numero, complemento, bairro, cidade, uf, cep, consumo_medio } = body;
 
-            if (!id) {
+            if (!cliente_id) {
                 res.statusCode = 400;
-                res.end(JSON.stringify({ error: 'id é obrigatório para atualizar' }));
+                res.end(JSON.stringify({ error: 'Id é obrigatório para atualizar' }));
                 return;
             }
 
             const result = await sql`
-                UPDATE users
+                UPDATE cliente
                 SET
-                    name = COALESCE(${name}, name),
-                    email = COALESCE(${email}, email)
-                WHERE id = ${id}
-                RETURNING id, name, email, created_at
+                    nome = COALESCE(${nome}, nome),
+                    cpf_cnpj = COALESCE(${cpf_cnpj}, cpf_cnpj),
+                    email = COALESCE(${email}, email),
+                    telefone = COALESCE(${telefone}, telefone),
+                    logradouro = COALESCE(${logradouro}, logradouro),
+                    numero = COALESCE(${numero}, numero),
+                    complemento = COALESCE(${complemento}, complemento),
+                    bairro = COALESCE(${bairro}, bairro),
+                    cidade = COALESCE(${cidade}, cidade),
+                    uf = COALESCE(${uf}, uf),
+                    cep = COALESCE(${cep}, cep),
+                    consumo_medio = COALESCE(${consumo_medio}, consumo_medio)
+                WHERE cliente_id = ${cliente_id}
+                RETURNING cliente_id
             `;
 
             if (result.length === 0) {

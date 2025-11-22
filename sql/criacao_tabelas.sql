@@ -21,7 +21,8 @@ CREATE TABLE cliente (
   bairro         VARCHAR(80),
   cidade         VARCHAR(80),
   uf             CHAR(2),
-  cep            VARCHAR(10)
+  cep            VARCHAR(10),
+  consumo_medio  VARCHAR(10)
 );
 
 CREATE TABLE equipe (

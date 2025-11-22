@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 
 const EMPTY_CLIENT = {
-    fullName: "",
-    document: "",
-    phone: "",
+    nome: "",
+    cpf_cnpj: "",
+    telefone: "",
     email: "",
-    averageConsumption: "",
+    consumo_medio: "",
     cep: "",
-    street: "",
-    number: "",
-    complement: "",
-    district: "",
-    city: "",
-    state: "",
+    logradouro: "",
+    numero: "",
+    complemento: "",
+    bairro: "",
+    cidade: "",
+    uf: "",
 };
 
 export default function ClientForm({ mode = "create", initialData, onCancel, onSave }) {
@@ -60,11 +60,11 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
 
         setErrors(prev => {
             const newErrors = { ...prev };
-            delete newErrors.street;
-            delete newErrors.district;
-            delete newErrors.city;
-            delete newErrors.state;
-            delete newErrors.number;
+            delete newErrors.logradouro;
+            delete newErrors.bairro;
+            delete newErrors.cidade;
+            delete newErrors.uf;
+            delete newErrors.numero;
             delete newErrors.cep;
             return newErrors;
         });
@@ -104,13 +104,13 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
 
         setClient((prev) => ({
             ...prev,
-            phone: formatted,
+            telefone: formatted,
         }));
 
         setErrors((prev) => {
-            if (!prev.phone) return prev;
+            if (!prev.telefone) return prev;
             const newErrors = { ...prev };
-            delete newErrors.phone;
+            delete newErrors.telefone;
             return newErrors;
         });
     };
@@ -153,13 +153,13 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
 
         setClient((prev) => ({
             ...prev,
-            document: formatted,
+            cpf_cnpj: formatted,
         }));
 
         setErrors((prev) => {
-            if (!prev.document) return prev;
+            if (!prev.cpf_cnpj) return prev;
             const newErrors = { ...prev };
-            delete newErrors.document;
+            delete newErrors.cpf_cnpj;
             return newErrors;
         });
     };
@@ -195,10 +195,10 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
 
             setClient((prev) => ({
                 ...prev,
-                street: data.logradouro || "",
-                district: data.bairro || "",
-                city: data.localidade || "",
-                state: data.uf || "",
+                logradouro: data.logradouro || "",
+                bairro: data.bairro || "",
+                cidade: data.localidade || "",
+                uf: data.uf || "",
             }));
 
             setAddressEnabled(false);
@@ -213,36 +213,36 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
     const clearAddressFields = () => {
         setClient((prev) => ({
             ...prev,
-            street: "",
-            number: "",
-            complement: "",
-            district: "",
-            city: "",
-            state: "",
+            logradouro: "",
+            numero: "",
+            complemento: "",
+            bairro: "",
+            cidade: "",
+            uf: "",
         }));
     };
 
     const validate = () => {
         const newErrors = {};
-        const digitsDoc = client.document.replace(/\D/g, "");
-        const digitsPhone = client.phone.replace(/\D/g, "");
+        const digitsDoc = client.cpf_cnpj.replace(/\D/g, "");
+        const digitsPhone = client.telefone.replace(/\D/g, "");
         const digitsCep = client.cep.replace(/\D/g, "");
-        const consumo = client.averageConsumption;
+        const consumo = client.consumo_medio;
 
-        if (!client.fullName.trim()) {
-            newErrors.fullName = "Informe o nome completo.";
+        if (!client.nome.trim()) {
+            newErrors.nome = "Informe o nome completo.";
         }
 
-        if (!client.document.trim()) {
-            newErrors.document = "Informe o CPF ou CNPJ.";
+        if (!client.cpf_cnpj.trim()) {
+            newErrors.cpf_cnpj = "Informe o CPF ou CNPJ.";
         } else if (digitsDoc.length !== 11 && digitsDoc.length !== 14) {
-            newErrors.document = "CPF deve ter 11 dígitos ou CNPJ 14 dígitos.";
+            newErrors.cpf_cnpj = "CPF deve ter 11 dígitos ou CNPJ 14 dígitos.";
         }
 
-        if (!client.phone.trim()) {
-            newErrors.phone = "Informe o telefone.";
+        if (!client.telefone.trim()) {
+            newErrors.telefone = "Informe o telefone.";
         } else if (digitsPhone.length < 10 || digitsPhone.length > 11) {
-            newErrors.phone = "Telefone deve ter 10 ou 11 dígitos.";
+            newErrors.telefone = "Telefone deve ter 10 ou 11 dígitos.";
         }
 
         if (!client.email.trim()) {
@@ -255,9 +255,9 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
         }
 
         if (consumo === "" || consumo === null) {
-            newErrors.averageConsumption = "Informe o consumo médio mensal.";
+            newErrors.consumo_medio = "Informe o consumo médio mensal.";
         } else if (Number(consumo) < 0) {
-            newErrors.averageConsumption = "O consumo não pode ser negativo.";
+            newErrors.consumo_medio = "O consumo não pode ser negativo.";
         }
 
         if (!client.cep.trim()) {
@@ -266,24 +266,24 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
             newErrors.cep = "CEP deve ter 8 dígitos.";
         }
 
-        if (!client.street.trim()) {
-            newErrors.street = "Informe a rua.";
+        if (!client.logradouro.trim()) {
+            newErrors.logradouro = "Informe a rua.";
         }
 
-        if (!client.number.trim()) {
-            newErrors.number = "Informe o número.";
+        if (!client.numero.trim()) {
+            newErrors.numero = "Informe o número.";
         }
 
-        if (!client.district.trim()) {
-            newErrors.district = "Informe o bairro.";
+        if (!client.bairro.trim()) {
+            newErrors.bairro = "Informe o bairro.";
         }
 
-        if (!client.city.trim()) {
-            newErrors.city = "Informe a cidade.";
+        if (!client.cidade.trim()) {
+            newErrors.cidade = "Informe a cidade.";
         }
 
-        if (!client.state.trim()) {
-            newErrors.state = "Selecione o estado.";
+        if (!client.uf.trim()) {
+            newErrors.uf = "Selecione o estado.";
         }
 
         return newErrors;
@@ -317,12 +317,12 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                         <input
                             type="text"
                             placeholder="Nome Completo do Cliente"
-                            value={client.fullName}
-                            onChange={handleChange("fullName")}
-                            className={getInputClass("fullName")}
+                            value={client.nome}
+                            onChange={handleChange("nome")}
+                            className={getInputClass("nome")}
                         />
-                        {errors.fullName && (
-                            <span className="error-text">{errors.fullName}</span>
+                        {errors.nome && (
+                            <span className="error-text">{errors.nome}</span>
                         )}
                     </div>
 
@@ -331,14 +331,14 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                         <input
                             type="text"
                             placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                            value={client.document}
+                            value={client.cpf_cnpj}
                             onChange={handleDocumentChange}
                             inputMode="numeric"
                             maxLength={18}
-                            className={getInputClass("document")}
+                            className={getInputClass("cpf_cnpj")}
                         />
-                        {errors.document && (
-                            <span className="error-text">{errors.document}</span>
+                        {errors.cpf_cnpj && (
+                            <span className="error-text">{errors.cpf_cnpj}</span>
                         )}
                     </div>
 
@@ -347,14 +347,14 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                         <input
                             type="text"
                             placeholder="(00) 00000-0000"
-                            value={client.phone}
+                            value={client.telefone}
                             onChange={handlePhoneChange}
                             inputMode="numeric"
                             maxLength={15}
-                            className={getInputClass("phone")}
+                            className={getInputClass("telefone")}
                         />
-                        {errors.phone && (
-                            <span className="error-text">{errors.phone}</span>
+                        {errors.telefone && (
+                            <span className="error-text">{errors.telefone}</span>
                         )}
                     </div>
 
@@ -378,12 +378,12 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             type="number"
                             min="0"
                             placeholder="0"
-                            value={client.averageConsumption}
-                            onChange={handleChange("averageConsumption")}
-                            className={getInputClass("averageConsumption")}
+                            value={client.consumo_medio}
+                            onChange={handleChange("consumo_medio")}
+                            className={getInputClass("consumo_medio")}
                         />
-                        {errors.averageConsumption && (
-                            <span className="error-text">{errors.averageConsumption}</span>
+                        {errors.consumo_medio && (
+                            <span className="error-text">{errors.consumo_medio}</span>
                         )}
                     </div>
                 </div>
@@ -420,13 +420,13 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                         <input
                             type="text"
                             placeholder="Nome da Rua"
-                            value={client.street}
-                            onChange={handleChange("street")}
+                            value={client.logradouro}
+                            onChange={handleChange("logradouro")}
                             disabled={!addressEnabled}
-                            className={getInputClass("street")}
+                            className={getInputClass("logradouro")}
                         />
-                        {errors.street && (
-                            <span className="error-text">{errors.street}</span>
+                        {errors.logradouro && (
+                            <span className="error-text">{errors.logradouro}</span>
                         )}
                     </div>
 
@@ -435,12 +435,12 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                         <input
                             type="text"
                             placeholder="Ex: 123"
-                            value={client.number}
-                            onChange={handleChange("number")}
-                            className={getInputClass("number")}
+                            value={client.numero}
+                            onChange={handleChange("numero")}
+                            className={getInputClass("numero")}
                         />
-                        {errors.number && (
-                            <span className="error-text">{errors.number}</span>
+                        {errors.numero && (
+                            <span className="error-text">{errors.numero}</span>
                         )}
                     </div>
 
@@ -449,8 +449,8 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                         <input
                             type="text"
                             placeholder="Ex: Apto 101"
-                            value={client.complement}
-                            onChange={handleChange("complement")}
+                            value={client.complemento}
+                            onChange={handleChange("complemento")}
                         />
                     </div>
 
@@ -459,13 +459,13 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                         <input
                             type="text"
                             placeholder="Nome do Bairro"
-                            value={client.district}
-                            onChange={handleChange("district")}
+                            value={client.bairro}
+                            onChange={handleChange("bairro")}
                             disabled={!addressEnabled}
-                            className={getInputClass("district")}
+                            className={getInputClass("bairro")}
                         />
-                        {errors.district && (
-                            <span className="error-text">{errors.district}</span>
+                        {errors.bairro && (
+                            <span className="error-text">{errors.bairro}</span>
                         )}
                     </div>
 
@@ -474,23 +474,23 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                         <input
                             type="text"
                             placeholder="Nome da Cidade"
-                            value={client.city}
-                            onChange={handleChange("city")}
+                            value={client.cidade}
+                            onChange={handleChange("cidade")}
                             disabled={!addressEnabled}
-                            className={getInputClass("city")}
+                            className={getInputClass("cidade")}
                         />
-                        {errors.city && (
-                            <span className="error-text">{errors.city}</span>
+                        {errors.cidade && (
+                            <span className="error-text">{errors.cidade}</span>
                         )}
                     </div>
 
                     <div className="form-field">
                         <label>Estado</label>
                         <select
-                            value={client.state}
-                            onChange={handleChange("state")}
+                            value={client.uf}
+                            onChange={handleChange("uf")}
                             disabled={!addressEnabled}
-                            className={getInputClass("state")}
+                            className={getInputClass("uf")}
                         >
                             <option value="">Selecione um Estado</option>
                             <option value="AC">AC</option>
@@ -521,8 +521,8 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                             <option value="SE">SE</option>
                             <option value="TO">TO</option>
                         </select>
-                        {errors.state && (
-                            <span className="error-text">{errors.state}</span>
+                        {errors.uf && (
+                            <span className="error-text">{errors.uf}</span>
                         )}
                     </div>
                 </div>

@@ -1605,3 +1605,12 @@
         transform: rotate(360deg);
     }
 }
+
+
+.login-error-text {
+    color: #dc2626;          /* vermelho elegante */
+    font-size: 0.85rem;
+    text-align: center;      /* centralizado */
+    margin-bottom: 10px;     /* espaço para o campo */
+    font-weight: 500;
+}
