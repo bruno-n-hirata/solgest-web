@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
     FiMapPin,
     FiCalendar,
-    FiFileText,
+    FiDollarSign,
     FiUsers,
     FiBox,
 } from "react-icons/fi";
@@ -10,10 +10,10 @@ import SolgestLogo from "../assets/logo.png";
 
 const navItems = [
     { to: "/clientes", icon: FiMapPin, label: "Clientes" },
-    { to: "/agendamentos", icon: FiCalendar, label: "Agendamentos" }, // futuro
-    { to: "/orcamentos", icon: FiFileText, label: "Orçamentos" },     // futuro
+    { to: "/agendamentos", icon: FiCalendar, label: "Agendamentos" },
+    { to: "/orcamentos", icon: FiDollarSign, label: "Orçamentos" },
     { to: "/equipes", icon: FiUsers, label: "Equipes" },
-    { to: "/estoque", icon: FiBox, label: "Estoque" },                // futuro
+    { to: "/estoque", icon: FiBox, label: "Estoque" },
 ];
 
 export default function Sidebar() {

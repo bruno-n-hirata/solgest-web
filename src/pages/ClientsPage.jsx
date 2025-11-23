@@ -137,53 +137,55 @@ export default function ClientsPage() {
                             </div>
 
                             <div className="table-wrapper">
-                                {loading && <div style={{ padding: 16 }}>Carregando clientes...</div>}
-                                {error && !loading && (
-                                    <div style={{ padding: 16, color: "#b91c1c" }}>{error}</div>
-                                )}
+                                <div className="table-scroll">
+                                    {loading && <div style={{ padding: 16 }}>Carregando clientes...</div>}
+                                    {error && !loading && (
+                                        <div style={{ padding: 16, color: "#b91c1c" }}>{error}</div>
+                                    )}
 
-                                {!loading && !error && (
-                                    <>
-                                        <table className="clients-table">
-                                            <thead>
-                                            <tr>
-                                                <th>Nome</th>
-                                                <th>Telefone</th>
-                                                <th>Email</th>
-                                                <th>Consumo Médio (kWh)</th>
-                                                <th className="th-actions">Ações</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {clients.map((client) => (
-                                                <tr key={client.cliente_id}>
-                                                    <td className="cell-name">{client.nome}</td>
-                                                    <td>{client.telefone}</td>
-                                                    <td>{client.email}</td>
-                                                    <td>{client.consumo_medio}</td>
-                                                    <td className="cell-actions">
-                                                        <button className="link-button" onClick={() => handleEditClient(client)}>
-                                                            <FiEdit2 className="action-icon" /> Editar
-                                                        </button>
-                                                        <button className="link-button">
-                                                            <FiCalendar className="action-icon" /> Agendar Visita
-                                                        </button>
-                                                        <button className="link-button">
-                                                            <FiDollarSign className="action-icon" /> Calcular Orçamento
-                                                        </button>
-                                                    </td>
+                                    {!loading && !error && (
+                                        <>
+                                            <table className="clients-table">
+                                                <thead>
+                                                <tr>
+                                                    <th>Nome</th>
+                                                    <th>Telefone</th>
+                                                    <th>Email</th>
+                                                    <th>Consumo Médio (kWh)</th>
+                                                    <th className="th-actions">Ações</th>
                                                 </tr>
-                                            ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                {clients.map((client) => (
+                                                    <tr key={client.cliente_id}>
+                                                        <td className="cell-name">{client.nome}</td>
+                                                        <td>{client.telefone}</td>
+                                                        <td>{client.email}</td>
+                                                        <td>{client.consumo_medio}</td>
+                                                        <td className="cell-actions">
+                                                            <button className="link-button" onClick={() => handleEditClient(client)}>
+                                                                <FiEdit2 className="action-icon" /> Editar
+                                                            </button>
+                                                            <button className="link-button">
+                                                                <FiCalendar className="action-icon" /> Agendar Visita
+                                                            </button>
+                                                            <button className="link-button">
+                                                                <FiDollarSign className="action-icon" /> Calcular Orçamento
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                                </tbody>
+                                            </table>
 
-                                        <div className="table-footer">
-                                            {clients.length === 0
-                                                ? "Nenhum cliente cadastrado"
-                                                : `Mostrando ${clients.length} cliente(s)`}
-                                        </div>
-                                    </>
-                                )}
+                                            <div className="table-footer">
+                                                {clients.length === 0
+                                                    ? "Nenhum cliente cadastrado"
+                                                    : `Mostrando ${clients.length} cliente(s)`}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </section>
                     )}

@@ -164,6 +164,22 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
         });
     };
 
+    const handleConsumoChange = (event) => {
+        let value = event.target.value.replace(/\D/g, "");
+
+        setClient((prev) => ({
+            ...prev,
+            consumo_medio: value,
+        }));
+
+        setErrors((prev) => {
+            if (!prev.consumo_medio) return prev;
+            const newErrors = { ...prev };
+            delete newErrors.consumo_medio;
+            return newErrors;
+        });
+    };
+
     const handleCepBlur = async () => {
         const cepLimpo = client.cep.replace(/\D/g, "");
 
@@ -375,11 +391,12 @@ export default function ClientForm({ mode = "create", initialData, onCancel, onS
                     <div className="form-field">
                         <label>Consumo Médio Mensal (kWh)</label>
                         <input
-                            type="number"
-                            min="0"
+                            type="text"
+                            inputMode="numeric"
+                            pattern="\d*"
                             placeholder="0"
                             value={client.consumo_medio}
-                            onChange={handleChange("consumo_medio")}
+                            onChange={handleConsumoChange}
                             className={getInputClass("consumo_medio")}
                         />
                         {errors.consumo_medio && (

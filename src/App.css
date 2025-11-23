@@ -248,7 +248,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;   /* evita qualquer scroll horizontal chato */
+    overflow-x: auto;   /* evita qualquer scroll horizontal chato */
 }
 
 /* já existia, pode manter ou conferir */
@@ -379,9 +379,15 @@
 
 .table-wrapper {
     border-radius: 12px;
-    overflow: hidden;
     border: 1px solid #e5e7eb;
     background-color: #f9fafb;
+    overflow: hidden;
+}
+
+.table-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
 }
 
 .clients-table {
@@ -467,7 +473,7 @@
     border-top: 1px solid #e5e7eb;
     font-size: 0.8rem;
     color: #6b7280;
-    text-align: right;
+    text-align: left;
 }
 
 
@@ -593,6 +599,7 @@
 
 /* Base para todos os cards (lista, formulário, etc.) */
 .card {
+    width: 100%;
     max-width: 1120px;     /* largura máxima do conteúdo */
     margin: 0 auto;        /* centraliza horizontalmente */
     box-sizing: border-box;
@@ -1613,4 +1620,39 @@
     text-align: center;      /* centralizado */
     margin-bottom: 10px;     /* espaço para o campo */
     font-weight: 500;
+}
+
+
+@media (max-width: 1100px) {
+    .sidebar {
+        flex: 0 0 70px;
+        width: 70px;
+        transition: width 0.2s ease;
+    }
+
+    .sidebar-logo {
+        justify-content: center;
+        padding: 16px 0;
+    }
+
+    .sidebar-logo img {
+        height: 28px;
+        width: auto;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: 0;
+        height: 38px;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-item span {
+        display: none;
+    }
+
+    .nav-icon {
+        font-size: 18px;
+    }
 }
